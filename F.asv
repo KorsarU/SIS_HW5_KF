@@ -1,0 +1,15 @@
+function result = F(p, dsr, dsl, b, p_th, c_th)
+    x  = p(1);
+    y  = p(2);
+    th = p(3);
+    
+    dth=    c_th-p_th;
+    
+    dx =    ((dsr+dsl)/2)*...
+            cos(dth/2);
+    dy =    ((dsr+dsl)/2)*...
+            sin(dth/2);
+    
+    
+    result = [x+dx,y+dy,th+dth];
+end

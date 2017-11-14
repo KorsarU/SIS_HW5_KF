@@ -1,6 +1,6 @@
-data = data1;
+%data = data1;
 %data = importLine();
-%data = Sin;
+data = Sin;
 %data = SinCopy;
 
 dt= 0.1;    %time per measure
@@ -51,8 +51,6 @@ for i = 2:(length(data))
     dsr = (sr-p_sr)*r; ds = (dsr+dsl)/2; dth = (dsr-dsl)/b;
     
     c_p = F(p_p,dsr,dsl,b);
-    point = [c_p(1),c_p(2)];
-    pure_sensor_track = [pure_sensor_track; point];
     
     x = c_p(1);
     y = c_p(2);
@@ -89,19 +87,23 @@ for i = 2:(length(data))
     
     K=P*H'*(inv(H*P*H'+R));
     
-    z = [currstate(2);0];
+    z = currstate(2)-c_p(3);
     
-    innov=z-th;
-
-    corr=K*innov;
-    c_p = c_p+corr';
+    condK = cond(K);
+    
+    if condK>100
+        disp(...
+            ['condition number for K is > 100; it is '...
+            num2str(condK) ' at step ' num2str(i)]);
+    end
+    innov=z-hx;
         
    ... Kk      = Pk_*transp(Hk)*(Hk*Pk_*transp(Hk)+Rk)^-1;
    ... xk_pred = xk_pred_+Kk*(zk-h(hk_pred_,0));
    ... Pk      = (I-Kk*Hk)*Pk_;
     
     point = [c_p(1),c_p(2)];
-    kalman_sensor_track = [kalman_sensor_track; point];
+    pure_sensor_track = [pure_sensor_track; point];
     pure_sensor_track_error = [pure_sensor_track_error, currstate(2)];
     log = [log; (c_p)];
     
