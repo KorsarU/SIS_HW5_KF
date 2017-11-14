@@ -1,13 +1,14 @@
-data = data1;
+data = importfile('data.csv', 1, 301);
 %data = importLine();
 %data = Sin;
 %data = SinCopy;
 
 dt= 0.1;    %time per measure
 r = (55/2); 
-b = 120;      
+b = 60;      
 
 pure_sensor_track = [0,0];
+kalman_sensor_track = [0,0];
 pure_sensor_track_error = [];
 log = [0,0,0];
 %x;y;sr;sl;th
@@ -54,6 +55,10 @@ for i = 2:(length(data))
     point = [c_p(1),c_p(2)];
     pure_sensor_track = [pure_sensor_track; point];
     
+    p_p = c_p;
+    p_sr = p_sr+dsr/r;
+    p_sl = p_sl+dsl/r;
+    
     x = c_p(1);
     y = c_p(2);
     th = c_p(3);
@@ -94,23 +99,19 @@ for i = 2:(length(data))
     innov=z-th;
 
     corr=K*innov;
-    c_p = c_p+corr';
-        
-   ... Kk      = Pk_*transp(Hk)*(Hk*Pk_*transp(Hk)+Rk)^-1;
-   ... xk_pred = xk_pred_+Kk*(zk-h(hk_pred_,0));
-   ... Pk      = (I-Kk*Hk)*Pk_;
-    
+    c_p = c_p+corr';      
+   
     point = [c_p(1),c_p(2)];
     kalman_sensor_track = [kalman_sensor_track; point];
-    pure_sensor_track_error = [pure_sensor_track_error, currstate(2)];
+    
     log = [log; (c_p)];
     
-    p_p = c_p;
-    p_sr = p_sr+dsr/r;
-    p_sl = p_sl+dsl/r;
+
 
 end
 
 
-
-plot(pure_sensor_track(:,1),pure_sensor_track(:,2));
+subplot(2,2,1)
+plot(pure_sensor_track(:,1),pure_sensor_track(:,2)); title('without filter');
+subplot(2,2,2)
+plot(kalman_sensor_track(:,1),kalman_sensor_track(:,2)); title('with Kalman');
